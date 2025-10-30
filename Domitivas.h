@@ -1,5 +1,10 @@
-struct Nodo{
-    int Valor1;
-    int Valor2;
-    Nodo *next;
+//Creación de fichas
+struct Ficha{
+    int valor_1;
+    int valor_2;
+    Ficha *next;
+    Ficha *back;
 };
+
+//Funcioón de creación de fichas
+
