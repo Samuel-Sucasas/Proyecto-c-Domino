@@ -1,6 +1,5 @@
 #include "Domitivas.h"
 
-//Libreria para las Funciones de todo el juego de domino
 // Pequeño RNG interno
 // inicializarSemilla(0) mezclara la semilla con la dirección de la lista
 long semilla_rnd = 123456789;
@@ -194,4 +193,127 @@ void colocarFichaEnTablero(Ficha **tablero, int p1, int p2, char lado){
     }
     if (lado == 'I') insertarPrimeroTabla(tablero, p1, p2);
     else insertarUltimoTabla(tablero, p1, p2);
+}
+
+// Ejecutar turno: usa jugadorId y lista jugadores para acceder a su mano
+bool ejecutarTurno(int jugadorId, Jugador *jugadores, Ficha **pozo, Ficha **tablero){
+    Jugador *jug = encontrarJugador(jugadores, jugadorId);
+    if (!jug) return false;
+    cout<<"--- Turno Jugador "<<(jugadorId+1)<<" ---"<<endl;
+    mostrarTablero(*tablero);
+    cout<<"Tu mano:"<<endl;
+    mostrarManoConIndices(jug->mano);
+
+    NodoInt *jugables = indicesJugables(jug->mano, *tablero);
+    if (jugables != NULL){
+        cout<<"Fichas jugables (indices): ";
+        NodoInt *it = jugables;
+        while(it){ 
+            cout<<it->val<<" "; 
+            it = it->prox; 
+        }
+        cout<<endl;
+        int choice = -1;
+        while(true){
+            cout<<"Elige indice de ficha a colocar: ";
+            cin>>choice;
+            if (!cin){ 
+                cin.clear(); 
+                cin.ignore(10000,'\n'); 
+                choice = -1; 
+            }
+            if (nodoIntContiene(jugables, choice)) break;
+            cout<<"Indice no válido o no jugable. Intenta de nuevo."<<endl;
+        }
+        int a,b;
+        if (!eliminarFichaPorIndice(&jug->mano, choice, a, b)){
+            cout<<"Error al quitar ficha de la mano."<<endl;
+            return false;
+        }
+        int izq,derch;
+        obtenerExtremos(*tablero, izq, derch);
+        char lado = 'D';
+        bool canizq = false, canDerch = false;
+        if (izq == -1 && derch == -1) lado = 'D';
+        else {
+            if (a == izq || b == izq) canizq = true;
+            if (a == derch || b == derch) canDerch = true;
+            if (canizq && canDerch){
+                char s;
+                while(true){
+                    cout<<"Colocar a la izquierda (I) o derecha (D)? ";
+                    cin>>s;
+                    if (!cin){ 
+                        cin.clear(); 
+                        cin.ignore(10000,'\n');
+                        continue; 
+                    }
+                    if (s=='I' || s=='D' || s=='i' || s=='d'){ lado = (s=='i')? 'I' : (s=='d')? 'D' : s; break; }
+                }
+            } else if (canizq) lado = 'I';
+            else if (canDerch) lado = 'D';
+            else lado = 'D';
+        }
+        int p1 = a, p2 = b;
+        if (lado == 'I' && izq != -1){
+            if (p2 != izq) { 
+                int t = p1; 
+                p1 = p2; 
+                p2 = t; 
+            }
+        } else if (lado == 'D' && derch != -1){
+            if (p1 != derch) {
+                int t = p1; 
+                p1 = p2; 
+                p2 = t; 
+            }
+        }
+        colocarFichaEnTablero(tablero, p1, p2, lado);
+        cout<<"Jugador "<<(jugadorId+1)<<" colocó ["<<p1<<"|"<<p2<<"] en "<<(lado=='I'?"izquierda":"derecha")<<endl;
+    } else {
+        cout<<"No tienes fichas jugables. Robando del pozo..."<<endl;
+        int ra, rb;
+        if (extraerAleatoria(pozo, ra, rb)){
+            cout<<"Robaste ["<<ra<<"|"<<rb<<"]."<<endl;
+            int izq,derch;
+            obtenerExtremos(*tablero, izq, derch);
+            bool canizq = false, canDerch = false;
+            if (izq == -1 && derch == -1){
+                colocarFichaEnTablero(tablero, ra, rb, 'D');
+                cout<<"Se colocó automaticamente la ficha en el tablero (tabla estaba vacía)."<<endl;
+            } else {
+                if (ra == izq || rb == izq) canizq = true;
+                if (ra == derch || rb == derch) canDerch = true;
+                if (canDerch || canizq){
+                    char lado = canDerch ? 'D' : 'I';
+                    int p1 = ra, p2 = rb;
+                    if (lado == 'I'){
+                        if (p2 != izq) { int t = p1; p1 = p2; p2 = t; }
+                    } else {
+                        if (p1 != derch) { int t = p1; p1 = p2; p2 = t; }
+                    }
+                    colocarFichaEnTablero(tablero, p1, p2, lado);
+                    cout<<"Se colocó automaticamente la ficha robada ["<<p1<<"|"<<p2<<"] en "<<(lado=='I'?"izquierda":"derecha")<<endl;
+                } else {
+                    insertarUltimoTabla(&jug->mano, ra, rb);
+                    cout<<"La ficha no era jugable y quedó en tu mano."<<endl;
+                }
+            }
+        } else {
+            cout<<"No hay fichas en el pozo. No puedes robar. Pasas turno."<<endl;
+        }
+    }
+
+    // limpiar lista de jugables
+    while(jugables){
+        NodoInt *tmp = jugables->prox;
+        delete jugables;
+        jugables = tmp;
+    }
+
+    if (contarFichas(jug->mano) == 0){
+        cout<<"Jugador "<<(jugadorId+1)<<" se quedó sin fichas y gana el juego!"<<endl;
+        return true;
+    }
+    return false;
 }
