@@ -36,7 +36,7 @@ int miRand(int lim){
 // ------------------------------------------------------------------
 // Creación y reparto de fichas (usa listas de jugadores)
 // ------------------------------------------------------------------
-void crearJuego(Ficha **pozo){
+void crear_Juego(Ficha **pozo){
     for(int i=0;i<=6;i++){
         for(int j=i;j<=6;j++){
             insertarUltimoTabla(pozo,i,j);
@@ -70,7 +70,7 @@ void repartirFichas(Ficha **pozo, Jugador *jugadores){
 // ------------------------------------------------------------------
 // Barajar turnos: genera una lista NodoInt con ids en orden aleatorio
 // ------------------------------------------------------------------
-void barajarTurnosJugadores(Jugador *jugadores, NodoInt **ordenHead){
+void barajear_turnos(Jugador *jugadores, NodoInt **ordenHead){
     int n = contarJugadores(jugadores);
     // crear lista inicial de ids 0..n-1
     NodoInt *pool = NULL;

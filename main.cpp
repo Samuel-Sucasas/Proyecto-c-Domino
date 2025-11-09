@@ -5,7 +5,7 @@ int main(){
 
     cout<<" ||    Bienvenido al Domino doble 6    ||"<<endl;
 
-    int numero_de_jugadores;
+    int numero_de_jugadores = 0;
     cout<<"Cuantos jugadores Desean jugar: "<<endl;
     cin>>numero_de_jugadores;
     
@@ -21,39 +21,41 @@ int main(){
 
 
         //Inicializar y apuntar pozo, jugadores y tablero a nulo
-        Ficha *pozo =nullptr;
-        Jugador *jugadores = nullptr;
-        Ficha *tablero=nullptr;
+        Ficha *pozo = NULL;
+        Jugador *jugadores = NULL;
+        Ficha *tablero = NULL;
 
         //Creamos los jugadores
-        crear_jugadores(&jugadores, jugadores);
+        crearJugadores(&jugadores, numero_de_jugadores);
 
         //Creamos el juego
-        crear_juego(&pozo);
+        crear_Juego(&pozo);
 
         //Dejar para más tarde 
         cout<<"Se creo el juego";
-        contar_fichas_en_lista(stock)<<endl;
+        contarFichasEnLista(pozo);
+        cout<<" "<<endl;
 
         //Se reparten las fichas a los jugadores
-        repartir_fichas(&pozo,jugadores);
+        repartirFichas(&pozo,jugadores);
         cout<<"Las fichas se reparieron, preparete para jugar";
 
         // Se cuentan las fichas restantes
-        contar_fichas_en_lista(stock)<<endl;
+        contarFichasEnLista(pozo);
+        cout<<" "<<endl;
 
         //Se muestran las manos ya repartidas
-        mostrar_manos(jugadores);
+        mostrarManos(jugadores);
 
         //Orden jugadores 
         NodoInt *orden=nullptr;
         barajear_turnos(jugadores, &orden); //Se barajean los turnos
         cout<<"Orden de turnos(aleatorio)";
-        NodoInt *it=orden;
+        NodoInt *Aleatorio=orden;
 
-        while(it){ //Samu cambia esto 
-            cout<<"Jugador"<< (it->val+1)<<" ";
-            it=it->prox;
+        while(Aleatorio){ 
+            cout<<"Jugador"<< (Aleatorio->val+1)<<" ";
+            Aleatorio=Aleatorio->prox;
             cout<<endl;
         }
 
@@ -61,27 +63,26 @@ int main(){
         const int maximo_de_rondas=3;
         bool hay_ganador= false;
 
-        for(int ronda=0; ronda<=maximo_de_rondas && !hay_ganador, ronda++){ //Si llego a 3 rondas o existe un ganador
+        for(int ronda=0; ronda<=maximo_de_rondas && !hay_ganador; ronda++){ //Si llego a 3 rondas o existe un ganador
 
             cout<<" ------- Ronnda "<< ronda <<" ------- "<<endl;
-            it=orden;
-            while(it && !hay_ganador){
-                int jugador= it->val;
-                hay_ganador=ejecutar_turno(jugador, jugadores,&pozo, &tablero);
-                it=it->prox;
+            Aleatorio=orden;
+            while(Aleatorio && !hay_ganador){
+                int jugador= Aleatorio->val;
+                hay_ganador=ejecutarTurno(jugador, jugadores,&pozo, &tablero);
+                Aleatorio=Aleatorio->prox;
             }
         }
-
+        int int_max = 0;
         if(!hay_ganador){ //Si nadie gana se suman las fichas
             int mejor=-1;
             int mejor_count=int_max;
             int mejor_pips= int_max;
-            jugador *aux= jugadores;
+            Jugador *aux= jugadores;
             while(aux){
-                int c= contar_fichas(aux->mano);
-                int s= sumar_pips(auz->mano);
-                cout<<"Jugador"<<(aux->id+1);
-                fichas="<< c ", pips=" " <<s<<endl;
+                int c= contarFichas(aux->mano);
+                int s= sumarPips(aux->mano);
+                cout<<"Jugador "<<(aux->id+1)<<": fichas="<<c<<", pips="<<s<<endl;
                 if(c< mejor_count || (c== mejor_count&& s<mejor_pips)){
                     mejor=aux->id;
                     mejor_count= c;
@@ -99,12 +100,12 @@ int main(){
             }
         }
 
-        cout<<"El juego ha finalizado"
+        cout<<"El juego ha finalizado"<<endl;
 
         //Liberar memoria
-        jugador *j=jugadores;
+        Jugador *j = jugadores;
         while(j){
-            jugador *jn =j->prox;
+            Jugador *jn =j->prox;
             Ficha *f=j->mano;
             while(f){
                 Ficha *fn= f->prox;
@@ -117,9 +118,9 @@ int main(){
 
         //Liberar pozo
         while(pozo){
-            Ficha *fn=stock->prox;
-            delete stock;
-            stock=fn;
+            Ficha *fn=pozo->prox;
+            delete pozo;
+            pozo=fn;
         }
 
         //Liberar tablero
