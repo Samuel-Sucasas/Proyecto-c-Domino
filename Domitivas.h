@@ -1,6 +1,6 @@
 #include <iostream>
 using namespace std;
-
+//Primitivas para las Fichas de domino
 struct Ficha{
     int Dato1;
     int Dato2;
@@ -59,7 +59,7 @@ void insertarPrimeroTabla(Ficha **inicio, int valor1,int valor2) {
     nuevo->prox = *inicio;
     *inicio = nuevo;
 }
-
+// Contador de fichas 
 int contarFichas(Ficha *inicio){
     int cont = 0;
     Ficha *aux = inicio;
@@ -70,7 +70,7 @@ int contarFichas(Ficha *inicio){
     return cont;
 }
 
-// Elimina y devuelve la ficha en el índice (0-based). Retorna true si eliminó.
+// Elimina y devuelve la ficha en el índice. 
 bool eliminarFichaPorIndice(Ficha **inicio, int indice, int &salida1, int &salida2){
     if (FichaVacia(*inicio)) return false;
     Ficha *actual = *inicio;
@@ -90,5 +90,5 @@ bool eliminarFichaPorIndice(Ficha **inicio, int indice, int &salida1, int &salid
         anterior->prox = actual->prox;
     }
     delete actual;
-    return true;
+    return true; //Retorna true si eliminó.
 }
